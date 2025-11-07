@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Generator</title>
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for sleek dark theme */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .password-display {
+            word-break: break-all;
+        }
+        /* Custom utility for focus state (better visibility) */
+        .input-focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.5); /* Indigo-400 equivalent */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-4xl w-full">
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-extrabold text-indigo-400 mb-3 tracking-tight sm:text-6xl">
+                Fortify Your Digital Life
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                Generate highly secure, random passwords instantly and learn why complexity matters.
+            </p>
+        </header>
+
+        <!-- Generator Card -->
+        <div id="generator-card" class="bg-gray-800 p-6 sm:p-10 rounded-xl shadow-2xl border border-gray-700">
+            <h2 class="text-3xl font-bold mb-6 text-gray-50">Password Generator</h2>
+
+            <!-- Character Set Options (NEW SECTION) -->
+            <div class="mb-6 border-b border-gray-700 pb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-3">Customization (Select Character Types):</label>
+                <div class="flex flex-wrap gap-x-6 gap-y-3">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="include-lower" checked class="h-5 w-5 text-indigo-500 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500">
+                        <span class="text-gray-300">Lowercase (a-z)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="include-upper" checked class="h-5 w-5 text-indigo-500 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500">
+                        <span class="text-gray-300">UPPERCASE (A-Z)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="include-numbers" checked class="h-5 w-5 text-indigo-500 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500">
+                        <span class="text-gray-300">Numbers (0-9)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="include-symbols" checked class="h-5 w-5 text-indigo-500 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500">
+                        <span class="text-gray-300">Symbols (!@#$...)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Output Display -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-6">
+                <div id="password-output" class="password-display bg-gray-700 text-lg font-mono p-4 rounded-lg flex-grow text-yellow-300 select-all border border-gray-600 min-h-[50px] flex items-center justify-center">
+                    Click Generate to start
+                </div>
+                <button id="copy-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md flex items-center justify-center disabled:opacity-50" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+                      <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
+                    </svg>
+                    Copy
+                </button>
+            </div>
+
+            <!-- Length Input and Generator Button -->
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div class="flex-grow w-full">
+                    <label for="password-length" class="block text-sm font-medium text-gray-300 mb-2">Password Length (Characters)</label>
+                    <input type="number" id="password-length" value="16" min="8" max="64" class="input-focus-ring w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:border-indigo-400 transition" placeholder="e.g. 16">
+                </div>
+                <button id="generate-button" class="w-full sm:w-auto mt-2 sm:mt-5 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg">
+                    Generate Password
+                </button>
+            </div>
+
+            <!-- Message Box -->
+            <div id="message-box" class="mt-4 text-center p-3 text-sm rounded-lg transition-opacity duration-300 opacity-0 hidden"></div>
+
+        </div>
+
+        <!-- Security Content Section -->
+        <section class="mt-12 space-y-8 p-6 sm:p-10 bg-gray-800 rounded-xl shadow-xl border border-gray-700">
+            <h2 class="text-3xl font-bold text-indigo-400 border-b border-gray-700 pb-3">Understanding Password Security</h2>
+
+            <!-- Strong Password Explanation -->
+            <div>
+                <h3 class="text-2xl font-semibold text-gray-50 mb-3">What Makes a Strong Password?</h3>
+                <p class="text-gray-400">
+                    A strong password is defined by three key characteristics: <strong class="text-gray-200">Length, Complexity, and Randomness.</strong>
+                </p>
+                <ul class="list-disc list-inside text-gray-400 ml-4 mt-3 space-y-2">
+                    <li>
+                        <strong class="text-gray-200">Minimum Length:</strong> Aim for at least 12 characters, though 16 or more is highly recommended. The longer the password, the exponentially more time it takes to crack.
+                    </li>
+                    <li>
+                        <strong class="text-gray-200">Complexity (Variety):</strong> It should include a mix of character types: uppercase letters (A-Z), lowercase letters (a-z), numbers (0-9), and special symbols (`!@#$%^&*`, etc.).
+                    </li>
+                    <li>
+                        <strong class="text-gray-200">Randomness:</strong> A strong password must not contain dictionary words, names, dates of birth, common keyboard patterns (`qwerty`), or repetitions (`12341234`). Randomly generated passwords (like the one above) are the gold standard.
+                    </li>
+                    <li>
+                        <strong class="text-gray-200">Uniqueness:</strong> Never reuse the same password across multiple sites. If one service is breached, all your accounts are immediately vulnerable.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Importance Explanation -->
+            <div>
+                <h3 class="text-2xl font-semibold text-gray-50 mb-3">Why Are Strong Passwords Important?</h3>
+                <p class="text-gray-400">
+                    Strong passwords are your primary defense against cyber threats like brute-force attacks and credential stuffing. Weak or predictable passwords can be guessed or cracked in seconds, giving attackers immediate access to your email, banking, social media, and other sensitive information.
+                </p>
+                <p class="text-gray-400 mt-2">
+                    Using a long, complex, and unique password significantly increases the computational time required for an attacker to break it, often making the attempt economically unfeasible. In essence, a strong password turns a simple attack into an astronomical mathematical problem, securing your digital identity.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const outputElement = document.getElementById('password-output');
+            const lengthInput = document.getElementById('password-length');
+            const generateButton = document.getElementById('generate-button');
+            const copyButton = document.getElementById('copy-button');
+            const messageBox = document.getElementById('message-box');
+
+            // Get checkbox elements
+            const includeLower = document.getElementById('include-lower');
+            const includeUpper = document.getElementById('include-upper');
+            const includeNumbers = document.getElementById('include-numbers');
+            const includeSymbols = document.getElementById('include-symbols');
+
+            // Character sets defined as an object
+            const CHARS = {
+                lower: 'abcdefghijklmnopqrstuvwxyz',
+                upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                number: '0123456789',
+                symbol: '!@#$%^&*()_+~`|}{[]:;?><,./-='
+            };
+
+            /**
+             * Displays a temporary message in the message box.
+             * @param {string} text - The message to display.
+             * @param {string} type - 'success' or 'error' to determine color.
+             */
+            function showMessage(text, type) {
+                messageBox.textContent = text;
+                messageBox.className = 'mt-4 text-center p-3 text-sm rounded-lg transition-opacity duration-300 opacity-100 block';
+
+                if (type === 'success') {
+                    messageBox.classList.add('bg-green-800', 'text-green-200');
+                    messageBox.classList.remove('bg-red-800', 'text-red-200');
+                } else if (type === 'error') {
+                    messageBox.classList.add('bg-red-800', 'text-red-200');
+                    messageBox.classList.remove('bg-green-800', 'text-green-200');
+                }
+
+                setTimeout(() => {
+                    messageBox.classList.add('opacity-0');
+                    setTimeout(() => messageBox.classList.add('hidden'), 300);
+                }, 3000);
+            }
+
+            /**
+             * Generates a random, strong password of a specified length
+             * based on selected character sets.
+             * Ensures at least one character from each selected set is included
+             * to guarantee compliance with the user's complexity choice.
+             * @param {number} length - The desired length of the password.
+             * @returns {string} The generated password.
+             */
+            function generatePassword(length) {
+                let charPool = '';
+                let password = '';
+                let requiredChars = [];
+
+                // 1. Build the character pool and gather one guaranteed character from each selected set
+                if (includeLower.checked) {
+                    charPool += CHARS.lower;
+                    requiredChars.push(CHARS.lower[Math.floor(Math.random() * CHARS.lower.length)]);
+                }
+                if (includeUpper.checked) {
+                    charPool += CHARS.upper;
+                    requiredChars.push(CHARS.upper[Math.floor(Math.random() * CHARS.upper.length)]);
+                }
+                if (includeNumbers.checked) {
+                    charPool += CHARS.number;
+                    requiredChars.push(CHARS.number[Math.floor(Math.random() * CHARS.number.length)]);
+                }
+                if (includeSymbols.checked) {
+                    charPool += CHARS.symbol;
+                    requiredChars.push(CHARS.symbol[Math.floor(Math.random() * CHARS.symbol.length)]);
+                }
+                
+                // If no character types are selected, this function shouldn't run, 
+                // but this check acts as a safeguard.
+                if (charPool.length === 0) return '';
+
+
+                // 2. Start password with the required complexity characters
+                password += requiredChars.join('');
+
+                // 3. Fill the rest of the password length randomly from the full char pool
+                for (let i = password.length; i < length; i++) {
+                    password += charPool[Math.floor(Math.random() * charPool.length)];
+                }
+
+                // 4. Shuffle the password to randomize the position of the required characters
+                password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+                return password;
+            }
+
+            // Event listener for Generate Button
+            generateButton.addEventListener('click', () => {
+                const length = parseInt(lengthInput.value, 10);
+                
+                // Determine selected character count for validation
+                const selectedCount = [includeLower, includeUpper, includeNumbers, includeSymbols].filter(cb => cb.checked).length;
+
+                // Validation 1: Length (min 8, max 64)
+                if (isNaN(length) || length < 8 || length > 64) {
+                    outputElement.textContent = "Error: Invalid length.";
+                    copyButton.disabled = true;
+                    showMessage("Password length must be between 8 and 64 characters.", 'error');
+                    return;
+                }
+                
+                // Validation 2: Character Sets (at least one selected)
+                if (selectedCount === 0) {
+                    outputElement.textContent = "Error: Select character types.";
+                    copyButton.disabled = true;
+                    showMessage("You must select at least one character type.", 'error');
+                    return;
+                }
+
+                // Validation 3: Length vs. Required Complexity (Length must be >= number of selected types)
+                if (length < selectedCount) {
+                    outputElement.textContent = "Error: Increase length.";
+                    copyButton.disabled = true;
+                    showMessage(`Length (${length}) must be at least the number of selected types (${selectedCount}) to guarantee complexity.`, 'error');
+                    return;
+                }
+
+                const newPassword = generatePassword(length);
+                outputElement.textContent = newPassword;
+                copyButton.disabled = false;
+                showMessage(`Generated a ${length} character password successfully!`, 'success');
+            });
+
+            // Event listener for Copy Button
+            copyButton.addEventListener('click', () => {
+                const password = outputElement.textContent;
+                if (password && password !== "Click Generate to start" && !password.includes("Error")) {
+                    // Use document.execCommand('copy') for better compatibility within certain environments
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = password;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+
+                    showMessage('Password copied to clipboard!', 'success');
+                } else {
+                    showMessage('Nothing to copy. Generate a valid password first!', 'error');
+                }
+            });
+            
+            // Initial generation on load (good UX)
+            generateButton.click();
+        });
+    </script>
+</body>
+</html>
